@@ -1,6 +1,6 @@
-# Games API - Fase 3
+# Games API - Fase 4
 
-API .NET 8 para catalogo de jogos e solicitacao de compras. A aplicacao foi migrada de AWS Lambda para uma Web API containerizada, pronta para execucao em Docker, Kubernetes local e Amazon EKS.
+API .NET 8 para catalogo de jogos e solicitacao de compras. A aplicacao esta preparada para execucao em Docker Compose, Kubernetes local e Amazon EKS, com mensageria via RabbitMQ, persistencia em DynamoDB, cache em Redis e busca em Elasticsearch.
 
 ## Arquitetura
 
@@ -8,9 +8,11 @@ API .NET 8 para catalogo de jogos e solicitacao de compras. A aplicacao foi migr
 - Imagem Docker publicada no Docker Hub por GitHub Actions.
 - Deploy em Kubernetes local ou Amazon EKS.
 - Amazon DynamoDB mantido como banco NoSQL da API.
-- RabbitMQ substitui o antigo fluxo baseado em Amazon SQS.
+- RabbitMQ usado para publicacao de eventos e integracao com o fluxo de pagamentos.
+- Redis usado como cache da listagem de jogos.
+- Elasticsearch usado como indice de busca/catalogo de jogos.
 - Autenticacao JWT Bearer usando o token emitido pela `ms-usersapi`.
-- Terraform cria VPC, EKS, AWS Load Balancer Controller, Metrics Server, DynamoDB e IAM Role IRSA.
+- Terraform cria VPC, EKS, AWS Load Balancer Controller, Metrics Server, DynamoDB e IAM Role IRSA para a Games API.
 
 ## Configuracoes principais
 
@@ -22,6 +24,7 @@ Variaveis esperadas pela aplicacao:
 - `Jwt__Secret`
 - `Jwt__Issuer`
 - `Jwt__Audience`
+- `Jwt__KeyId`
 - `RabbitMq__Host`
 - `RabbitMq__Port`
 - `RabbitMq__Username`
@@ -29,8 +32,15 @@ Variaveis esperadas pela aplicacao:
 - `RabbitMq__VirtualHost`
 - `RabbitMq__ExchangeName`
 - `RabbitMq__PaymentQueueName`
+- `Elasticsearch__Url`
+- `Elasticsearch__IndexName`
+- `Redis__Host`
+- `Redis__Port`
+- `Redis__InstanceName`
+- `Cache__GamesListKey`
+- `Cache__GamesListTtlSeconds`
 
-Os valores de JWT devem ser compativeis com a `ms-usersapi`, especialmente `Jwt__Secret`, `Jwt__Issuer` e `Jwt__Audience`.
+Os valores de JWT devem ser compativeis com a `ms-usersapi`, especialmente `Jwt__Secret`, `Jwt__Issuer`, `Jwt__Audience` e `Jwt__KeyId`.
 
 ## Execucao local com Docker Compose
 
@@ -43,6 +53,8 @@ Servicos locais:
 - Games API: `http://localhost:5001`
 - RabbitMQ Management: `http://localhost:15672`
 - DynamoDB Local: `http://localhost:8000`
+- Redis: `localhost:6379`
+- Elasticsearch: `http://localhost:9200`
 
 O Compose cria a tabela DynamoDB `Games` automaticamente no DynamoDB Local. Para rodar a Games API junto com a Users API usando um unico RabbitMQ, execute o Compose da raiz do workspace:
 
@@ -90,7 +102,7 @@ Depois do `apply`, use o output `games_api_role_arn` na ServiceAccount Kubernete
 .\deployEks.ps1 `
   -ClusterName fase4-games-api-dev `
   -Region us-east-1 `
-  -Image adinteltidev/games-api:latest `
+  -Image adinteltidev/fase4-games-api:latest `
   -GamesApiRoleArn <role-arn-gerado-pelo-terraform>
 ```
 
