@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: games-api
+  namespace: fase4
+  labels:
+    app: games-api
+spec:
+  type: ClusterIP
+  selector:
+    app: games-api
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080

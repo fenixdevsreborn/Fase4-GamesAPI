@@ -1,0 +1,12 @@
+project_name              = "fase4-games-api"
+environment               = "dev"
+aws_region                = "us-east-1"
+cluster_name              = "fcg-fase4"
+cluster_version           = "1.30"
+node_instance_types       = ["m7i-flex.large"]
+node_min_size             = 2
+node_max_size             = 4
+node_desired_size         = 2
+games_table_name          = "Games"
+kubernetes_namespace      = "fase4"
+games_api_service_account = "games-api"

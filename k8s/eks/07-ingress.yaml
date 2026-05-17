@@ -1,0 +1,56 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: games-api-ingress
+  namespace: fase4
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+spec:
+  ingressClassName: alb
+  rules:
+  - http:
+      paths:
+      - path: /games
+        pathType: Prefix
+        backend:
+          service:
+            name: games-api
+            port:
+              number: 80
+      - path: /health
+        pathType: Prefix
+        backend:
+          service:
+            name: games-api
+            port:
+              number: 80
+      - path: /swagger
+        pathType: Prefix
+        backend:
+          service:
+            name: games-api
+            port:
+              number: 80
+      - path: /swagger-ui
+        pathType: Prefix
+        backend:
+          service:
+            name: games-api
+            port:
+              number: 80
+      - path: /index.html
+        pathType: Exact
+        backend:
+          service:
+            name: games-api
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: games-api
+            port:
+              number: 80
